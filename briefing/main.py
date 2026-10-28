@@ -17,6 +17,10 @@ ROOT = Path(__file__).resolve().parent.parent
 log = logging.getLogger("briefing")
 
 
+def llm_key_set() -> bool:
+    return bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("OPENAI_API_KEY"))
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--days", type=int, default=int(os.getenv("BRIEFING_DAYS", "7")), help="look-back window")
@@ -28,8 +32,13 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-    if not args.dry_run and not args.to:
-        p.error("--to (or BRIEFING_TO) is required unless --dry-run")
+    missing = [] if os.getenv("LLM_PROVIDER") else ([] if llm_key_set() else ["ANTHROPIC_API_KEY or OPENAI_API_KEY"])
+    if not args.dry_run:
+        missing += [k for k in ("GMAIL_ADDRESS", "GMAIL_APP_PASSWORD") if not os.getenv(k)]
+        missing += [] if args.to else ["BRIEFING_TO (or --to)"]
+    if missing:
+        log.error("Missing configuration: %s", ", ".join(missing))
+        return 2
 
     store = SeenStore(args.state)
     fresh = [x for x in sources.fetch_all(args.days) if x.id not in store]
