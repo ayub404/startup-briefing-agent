@@ -31,7 +31,7 @@ Options: `--days 7` (look-back window), `--max 8` (startups per email). Test the
 ## Run on GitHub Actions
 
 1. **Settings → Secrets and variables → Actions → Secrets:** add `GMAIL_ADDRESS`, `GMAIL_APP_PASSWORD`, and either `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`.
-2. **Same page → Variables:** add `BRIEFING_TO` (e.g. `ayubxonayub54@gmail.com`), and optionally `LLM_MODEL`.
+2. **Same page → Variables (or Secrets):** add `BRIEFING_TO` (e.g. `ayubxonayub54@gmail.com`), and optionally `LLM_MODEL`.
 3. **Actions → Startup briefing → Run workflow.**
 4. To get it daily, uncomment the `schedule` block in `.github/workflows/briefing.yml`.
 
